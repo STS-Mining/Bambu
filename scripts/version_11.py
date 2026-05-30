@@ -12,9 +12,9 @@ from trimesh.transformations import rotation_matrix
 # USER SETTINGS
 # =========================================================
 
-ARM_LENGTH = 160.0
-ARM_WIDTH = 40.0
-THICKNESS = 10.0
+ARM_LENGTH = 170.0
+ARM_WIDTH = ARM_LENGTH * 0.25
+THICKNESS = ARM_WIDTH * 0.25
 
 V_ANGLE = 50.0
 
@@ -25,12 +25,12 @@ END_HOLE = 23.0
 CENTER_HOLE_OFFSET = 25.0
 
 UPRIGHT_HEIGHT = 60.0
-UPRIGHT_THICKNESS = THICKNESS + 2.0
+UPRIGHT_THICKNESS = THICKNESS * 1.5
 
 EDGE_OFFSET = 20.0
 
-UPRIGHT_LEAN_ANGLE = 15.0
-UPRIGHT_OVERLAP = 3.0
+UPRIGHT_LEAN_ANGLE = 20.0
+UPRIGHT_OVERLAP = UPRIGHT_LEAN_ANGLE * 0.3
 
 LOWER_END_RADIUS = ARM_WIDTH / 2
 UPRIGHT_TOP_RADIUS = 6.0
@@ -325,3 +325,12 @@ output_path.parent.mkdir(parents=True, exist_ok=True)
 final.export(str(output_path))
 
 print(f"✅ STL saved as: {output_path}")
+print(f"   - Arm Length: {ARM_LENGTH}mm")
+print(f"   - Arm Width: {ARM_WIDTH}mm")
+print(f"   - Thickness: {THICKNESS}mm")
+print(f"   - V Angle: {V_ANGLE}°")
+print(f"   - Center Hole: {CENTER_HOLE}mm at {CENTER_HOLE_OFFSET}mm from V nose")
+print(f"   - End Hole: {END_HOLE}mm at {EDGE_OFFSET}mm from arm end")
+print(f"   - Upright Height: {UPRIGHT_HEIGHT}mm")
+print(f"   - Upright Thickness: {UPRIGHT_THICKNESS}mm")
+print(f"   - Upright Lean Angle: {UPRIGHT_LEAN_ANGLE}° with {UPRIGHT_OVERLAP:.2f}mm overlap")
