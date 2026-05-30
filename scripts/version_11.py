@@ -12,8 +12,8 @@ from trimesh.transformations import rotation_matrix
 # USER SETTINGS
 # =========================================================
 
-ARM_LENGTH = 170.0
-ARM_WIDTH = ARM_LENGTH * 0.25
+ARM_LENGTH = 175.0
+ARM_WIDTH = ARM_LENGTH * 0.20
 THICKNESS = ARM_WIDTH * 0.25
 
 V_ANGLE = 50.0
@@ -25,7 +25,7 @@ END_HOLE = 23.0
 CENTER_HOLE_OFFSET = 25.0
 
 UPRIGHT_HEIGHT = 60.0
-UPRIGHT_THICKNESS = THICKNESS * 1.5
+UPRIGHT_THICKNESS = THICKNESS * 1.25
 
 EDGE_OFFSET = 20.0
 
