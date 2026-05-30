@@ -4,6 +4,9 @@ from shapely.ops import unary_union
 import trimesh
 import numpy as np
 
+SAVE_LOCATION = "stl/"
+FILENAME = "version_01.stl"
+
 # ================== PARAMETERS ==================
 thickness = 8.0
 base_width = 70.0
@@ -49,6 +52,6 @@ final_2d = combined_2d.difference(unary_union([hole1, hole2]))
 mesh = trimesh.creation.extrude_polygon(final_2d, height=thickness)
 
 # Export
-mesh.export("dual_phone_bracket.stl")
-print("✅ Successfully exported: dual_phone_bracket.stl")
+mesh.export(SAVE_LOCATION + FILENAME)
+print(f"✅ Successfully exported: {FILENAME}")
 print("You can now open this file in Bambu Studio.")
