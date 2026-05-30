@@ -2,7 +2,7 @@ from pathlib import Path
 import math
 import numpy as np
 import trimesh
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, Point
 from shapely.ops import unary_union
 from trimesh.creation import extrude_polygon, cylinder
 from trimesh.boolean import union, difference
@@ -32,9 +32,8 @@ UPRIGHT_OVERLAP = 3.0
 LOWER_END_RADIUS = ARM_WIDTH / 2
 UPRIGHT_TOP_RADIUS = 6.0
 
-# Round where the two V arms join
 INNER_V_RADIUS = 1.0
-OUTER_V_RADIUS = 12.0
+OUTER_V_RADIUS = ARM_WIDTH / 2
 
 # =========================================================
 # AUTO SAVE SETTINGS
@@ -93,36 +92,12 @@ lower_angle = math.radians(-V_ANGLE / 2)
 arm1 = create_arm(+V_ANGLE / 2, rounded_end=False)
 arm2 = create_arm(-V_ANGLE / 2, rounded_end=True)
 
-from shapely.geometry import Point
-
 shape_2d = unary_union([arm1, arm2])
 
-# Add a round outside nose at the V point
+# Full-width rounded outside nose at V point
 outer_round = Point(0, 0).buffer(
     OUTER_V_RADIUS,
-    resolution=64
-)
-
-shape_2d = unary_union([
-    shape_2d,
-    outer_round
-])
-
-# Inner V fillet
-shape_2d = shape_2d.buffer(
-    INNER_V_RADIUS,
-    join_style=1
-).buffer(
-    -INNER_V_RADIUS,
-    join_style=1
-)
-
-shape_2d = unary_union([arm1, arm2])
-
-# Add a round outside nose at the V point
-outer_round = Point(0, 0).buffer(
-    OUTER_V_RADIUS,
-    resolution=64
+    resolution=96
 )
 
 shape_2d = unary_union([
@@ -136,14 +111,6 @@ shape_2d = shape_2d.buffer(
     join_style=1
 ).buffer(
     -INNER_V_RADIUS,
-    join_style=1
-)
-
-shape_2d = shape_2d.buffer(
-    -INNER_V_RADIUS,
-    join_style=1
-).buffer(
-    INNER_V_RADIUS,
     join_style=1
 )
 
