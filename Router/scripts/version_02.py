@@ -1,161 +1,65 @@
 from pathlib import Path
+import math
 import trimesh
-from trimesh.creation import box, cylinder
-from trimesh.boolean import difference
+from shapely.geometry import Polygon
+from trimesh.creation import extrude_polygon
 
 # =========================================================
 # SETTINGS
 # =========================================================
-WIDTH = 150.0
-LENGTH = 220.0
-THICKNESS = 60.0
+LENGTH = 30.0
+WIDTH = 10.0
+THICKNESS = 20.0
 
-FAN_SIZE = 120.0
-FAN_RECESS_SIZE = 122.0
-FAN_RECESS_DEPTH = 26.0
+FLAT_SPOT = 10.0       # flat section on top, in the centre
+CURVE_START_Z = 0.0    # lower this for more curve, raise for less curve
 
-AIR_HOLE_DIAMETER = 114.0
-
-FAN_SCREW_SPACING = 105.0
-FAN_SCREW_DIAMETER = 4.5
-
-# Internal duct / air chamber
-DUCT_WIDTH = 95.0
-DUCT_LENGTH = 120.0
-DUCT_HEIGHT = 34.0
-
-SIDE_VENT_HEIGHT = 20.0
-SIDE_VENT_DEPTH = 45.0
-
-# =========================================================
-# OUTPUT
-# =========================================================
-SAVE_DIR = Path("Router/stl")
+SAVE_DIR = Path("router/stl")
 SAVE_DIR.mkdir(parents=True, exist_ok=True)
 
-script_name = Path(__file__).stem
-OUTPUT_FILE = SAVE_DIR / f"{script_name}.stl"
+OUTPUT_FILE = SAVE_DIR / "spacer_block_curved_with_flat.stl"
 
 # =========================================================
-# POSITIONS
+# SIDE PROFILE
 # =========================================================
-fan_center_x = WIDTH / 2
-fan_center_y = LENGTH / 2
+flat_start_x = (LENGTH - FLAT_SPOT) / 2
+flat_end_x = flat_start_x + FLAT_SPOT
+
+points = []
+
+# Bottom edge
+points.append((0, 0))
+points.append((LENGTH, 0))
+
+# Right curved side
+steps = 32
+for i in range(steps + 1):
+    t = i / steps
+    x = LENGTH - (t * flat_start_x)
+    z = CURVE_START_Z + (THICKNESS - CURVE_START_Z) * math.sin(t * math.pi / 2)
+    points.append((x, z))
+
+# Flat top centre
+points.append((flat_start_x, THICKNESS))
+
+# Left curved side
+for i in range(steps, -1, -1):
+    t = i / steps
+    x = t * flat_start_x
+    z = CURVE_START_Z + (THICKNESS - CURVE_START_Z) * math.sin(t * math.pi / 2)
+    points.append((x, z))
+
+profile = Polygon(points)
+
+# Extrude through WIDTH
+spacer = extrude_polygon(profile, WIDTH)
+
+spacer.merge_vertices()
+spacer.fix_normals()
 
 # =========================================================
-# MAIN BODY
+# EXPORT
 # =========================================================
-main_block = box(extents=[WIDTH, LENGTH, THICKNESS])
-main_block.apply_translation([WIDTH / 2, LENGTH / 2, THICKNESS / 2])
+spacer.export(OUTPUT_FILE)
 
-cutters = []
-
-# =========================================================
-# TOP FAN RECESS
-# =========================================================
-fan_recess = box(extents=[
-    FAN_RECESS_SIZE,
-    FAN_RECESS_SIZE,
-    FAN_RECESS_DEPTH + 2
-])
-fan_recess.apply_translation([
-    fan_center_x,
-    fan_center_y,
-    THICKNESS - (FAN_RECESS_DEPTH / 2) + 1
-])
-cutters.append(fan_recess)
-
-# =========================================================
-# ROUND FAN AIR HOLE
-# =========================================================
-air_hole = cylinder(
-    radius=AIR_HOLE_DIAMETER / 2,
-    height=THICKNESS + 4,
-    sections=96
-)
-air_hole.apply_translation([
-    fan_center_x,
-    fan_center_y,
-    THICKNESS / 2
-])
-cutters.append(air_hole)
-
-# =========================================================
-# FAN SCREW HOLES
-# =========================================================
-offset = FAN_SCREW_SPACING / 2
-
-for dx, dy in [
-    [-offset, -offset],
-    [ offset, -offset],
-    [-offset,  offset],
-    [ offset,  offset],
-]:
-    screw_hole = cylinder(
-        radius=FAN_SCREW_DIAMETER / 2,
-        height=THICKNESS + 4,
-        sections=48
-    )
-    screw_hole.apply_translation([
-        fan_center_x + dx,
-        fan_center_y + dy,
-        THICKNESS / 2
-    ])
-    cutters.append(screw_hole)
-
-# =========================================================
-# INTERNAL AIR CHAMBER UNDER FAN
-# =========================================================
-duct = box(extents=[
-    DUCT_WIDTH,
-    DUCT_LENGTH,
-    DUCT_HEIGHT
-])
-duct.apply_translation([
-    fan_center_x,
-    fan_center_y,
-    DUCT_HEIGHT / 2
-])
-cutters.append(duct)
-
-# =========================================================
-# LEFT AND RIGHT LOWER AIR INLETS
-# =========================================================
-left_vent = box(extents=[
-    SIDE_VENT_DEPTH,
-    DUCT_LENGTH,
-    SIDE_VENT_HEIGHT
-])
-left_vent.apply_translation([
-    SIDE_VENT_DEPTH / 2,
-    fan_center_y,
-    SIDE_VENT_HEIGHT / 2 + 4
-])
-cutters.append(left_vent)
-
-right_vent = box(extents=[
-    SIDE_VENT_DEPTH,
-    DUCT_LENGTH,
-    SIDE_VENT_HEIGHT
-])
-right_vent.apply_translation([
-    WIDTH - (SIDE_VENT_DEPTH / 2),
-    fan_center_y,
-    SIDE_VENT_HEIGHT / 2 + 4
-])
-cutters.append(right_vent)
-
-# =========================================================
-# BOOLEAN CUTS
-# =========================================================
-final = difference(
-    [main_block] + cutters,
-    engine="manifold"
-)
-
-# =========================================================
-# EXPORT STL
-# =========================================================
-final.export(str(OUTPUT_FILE))
-
-print(f"STL saved to: {OUTPUT_FILE}")
+print(f"Saved STL to: {OUTPUT_FILE}")

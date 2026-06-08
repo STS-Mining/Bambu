@@ -6,13 +6,13 @@ from trimesh.boolean import difference
 # =========================================================
 # SETTINGS
 # =========================================================
-WIDTH = 150.0       # X direction
+WIDTH = 160.0       # X direction
 LENGTH = 220.0      # Y direction
-THICKNESS = 60.0    # Z direction
+THICKNESS = 30.0    # Z direction
 
 FAN_SIZE = 120.0
 FAN_RECESS_SIZE = 122.0
-FAN_RECESS_DEPTH = 26.0
+FAN_RECESS_DEPTH = 24.0
 
 AIR_HOLE_DIAMETER = 114.0
 
@@ -34,7 +34,7 @@ OUTPUT_FILE = SAVE_DIR / f"{script_name}.stl"
 # POSITIONS
 # =========================================================
 fan_center_x = WIDTH / 2
-fan_center_y = LENGTH - TOP_MARGIN - (FAN_SIZE / 2)
+fan_center_y = LENGTH / 2
 fan_center_z = THICKNESS / 2
 
 # =========================================================
