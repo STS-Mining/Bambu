@@ -1,1 +1,0 @@
-## This is a script to update the version number in the codebase to 0.3.0
